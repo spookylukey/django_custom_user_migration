@@ -15,8 +15,10 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    "Django>=1.7",
+    "Django>=1.8",
 ]
+
+test_requirements = requirements
 
 
 setup(
@@ -48,4 +50,6 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
+    test_suite='tests',
+    tests_require=test_requirements,
 )
