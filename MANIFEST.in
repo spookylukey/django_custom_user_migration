@@ -3,11 +3,12 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
+include .editorconfig
 
-recursive-include django_custom_user_migration
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
 include *.py
 include tox.ini
 recursive-include django_custom_user_migration *.py
+recursive-include tests *.py
