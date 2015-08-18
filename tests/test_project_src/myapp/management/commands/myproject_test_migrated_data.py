@@ -3,8 +3,10 @@ from __future__ import absolute_import, unicode_literals
 from django.db import connection
 from django.core.management.base import BaseCommand
 
-from accounts.models import User
+from django.contrib.auth import get_user_model
 from myapp.models import MyModel, OtherModel
+
+User = get_user_model()
 
 
 class Command(BaseCommand):
@@ -38,3 +40,8 @@ class Command(BaseCommand):
         other_owners = other.owners.all()
         if len(other_owners) != 2:
             raise AssertionError("OtherModel.owners not populated")
+
+        for table in ["auth_user", "auth_user_groups", "auth_user_user_permissions"]:
+            old_rows = connection.cursor().execute("SELECT * FROM {0};".format(table)).fetchall()
+            if len(old_rows) > 0:
+                raise AssertionError("{0} table not emptied".format(table))

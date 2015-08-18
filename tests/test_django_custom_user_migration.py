@@ -52,7 +52,7 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         self.shell("./manage.py makemigrations accounts")
         # Step 11 - skip
         # Step 12:
-        # self.shell("./manage.py create_empty_auth_user_migration")
+        self.shell("./manage.py create_custom_user_empty_migration accounts.User")
         # Step 13:
         self.shell("./manage.py migrate --noinput")
         # Step 14:

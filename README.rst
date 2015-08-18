@@ -113,7 +113,7 @@ Usage
 
 12. Create a migration that empties the ``auth.User`` table::
 
-      ./manage.py create_empty_auth_user_migration
+      ./manage.py create_custom_user_empty_migration accounts.User
 
 13. Run all the migrations::
 
@@ -125,10 +125,15 @@ Usage
 
 14. Test everything!
 
-15. Uninstall ``django_custom_user_migration``, you don't need it any more.
+    Note that all migrations generated are reversible, but before running them
+    in reverse you should set AUTH_USER_MODEL back to `"auth.User"`.
 
-16. Customise your ``User`` model as required in the normal way, using
-    migrations etc. You could even make it inherit from ``AbstractBaseUser`` or
-    some other model instead of ``AbstractUser``, provided that you
-    write/generate the necessary data migrations to cope with missing fields,
-    and update your admin and application accordingly.
+15. Uninstall ``django_custom_user_migration``, you don't need it any more. The
+    migrations generated run without it being installed.
+
+
+You can now customise your ``User`` model as required in the normal way, using
+migrations etc. You could even make it inherit from ``AbstractBaseUser`` or some
+other model instead of ``AbstractUser``, provided that you write/generate the
+necessary data migrations to cope with missing fields, and update your admin and
+application accordingly.

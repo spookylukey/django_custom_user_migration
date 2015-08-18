@@ -4,11 +4,14 @@ import inspect
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
+from django.db import models
 from django.db.migrations import Migration
 from django.db.migrations.autodetector import MigrationAutodetector
 from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.state import ProjectState
 from django.db.migrations.writer import MigrationWriter
+
+from django_custom_user_migration.utils import populate_table, empty_table, make_table_name, fetch_with_column_names
 
 
 FROM_APP = "auth"
@@ -68,3 +71,83 @@ class CustomUserCommand(BaseCommand):
                                                             "        migrations.RunPython(forwards, backwards),")
                 with open(writer.path, "wb") as fh:
                     fh.write(migration_string.encode('utf-8'))
+
+
+class CustomUserPopulateCommand(CustomUserCommand):
+
+    def create_populate_migration(self, app_label, model_name, reverse=False):
+        populate_template = """
+    populate_table(apps, schema_editor,
+                   {from_app}, {from_model},
+                   {to_app}, {to_model})
+"""
+        empty_template = """
+    empty_table(apps, schema_editor,
+                {to_app}, {to_model})
+"""
+
+        forwards_backwards_template = """
+def forwards(apps, schema_editor):
+    {forwards}
+
+
+def backwards(apps, schema_editor):
+    {backwards}
+        """
+
+        from_model = apps.get_model(FROM_APP, FROM_MODEL)
+        to_model = apps.get_model(app_label, model_name)
+
+        if reverse:
+            from_model, to_model = to_model, from_model
+
+        # We need to populate the model table, but also the automatically
+        # created M2M tables from the corresponding table on the source model
+
+        model_pairs = [(from_model, to_model)]
+
+        model_pairs = [((from_model._meta.app_label, from_model.__name__),
+                        (to_model._meta.app_label, to_model.__name__))]
+
+        for from_f in from_model._meta.get_fields(include_hidden=True):
+            if not isinstance(from_f, models.ManyToManyField):
+                continue
+            to_f = to_model._meta.get_field(from_f.name)
+
+            # When auth.User has been swapped out, the f.rel.through attribute
+            # becomes None. So we have to build the name manually.
+            make_name = lambda f: "{0}_{1}".format(f.model.__name__, f.name)
+            model_pairs.append(((from_model._meta.app_label, make_name(from_f)),
+                                (to_model._meta.app_label, make_name(to_f))))
+
+        populate = ""
+        empty = ""
+        for ((from_a, from_m), (to_a, to_m)) in model_pairs:
+            populate += populate_template.format(
+                from_app=repr(from_a),
+                from_model=repr(from_m),
+                to_app=repr(to_a),
+                to_model=repr(to_m),
+            )
+
+        # Empty in reverse order i.e. M2M tables first
+        for ((from_a, from_m), (to_a, to_m)) in model_pairs:
+            empty += empty_template.format(
+                from_app=repr(from_a),
+                from_model=repr(from_m),
+                to_app=repr(to_a),
+                to_model=repr(to_m),
+            )
+
+        if not reverse:
+            data = {'forwards': populate,
+                    'backwards': empty,
+                    }
+        else:
+            data = {'forwards': empty,
+                    'backwards': populate,
+                    }
+        forwards_backwards = forwards_backwards_template.format(**data)
+
+        self.create_runpython_migration(app_label, forwards_backwards,
+                                        [populate_table, empty_table, make_table_name, fetch_with_column_names])
