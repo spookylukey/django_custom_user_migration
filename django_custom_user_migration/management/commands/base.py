@@ -14,19 +14,18 @@ from django.db.migrations.writer import MigrationWriter
 from django_custom_user_migration.utils import populate_table, empty_table, make_table_name, fetch_with_column_names
 
 
-FROM_APP = "auth"
-FROM_MODEL = "User"
-
-
 class CustomUserCommand(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument("custom_user_model")
+        parser.add_argument("source_model")
+        parser.add_argument("destination_model")
 
     def handle(self, *args, **options):
-        model = options['custom_user_model']
-        app_label, model_name = model.split(".")
-        self.handle_custom_user(app_label, model_name)
+        source_model = options['source_model']
+        destination_model = options['destination_model']
+        from_app_label, from_model_name = source_model.split(".")
+        to_app_label, to_model_name = destination_model.split(".")
+        self.handle_custom_user(from_app_label, from_model_name, to_app_label, to_model_name)
 
     def create_runpython_migration(self, app_label, forwards_backwards, extra_functions,
                                    extra_dependencies=None):
@@ -75,16 +74,14 @@ class CustomUserCommand(BaseCommand):
 
 class CustomUserPopulateCommand(CustomUserCommand):
 
-    def create_populate_migration(self, app_label, model_name, reverse=False):
+    def create_populate_migration(self, from_app_label, from_model_name, to_app_label, to_model_name, reverse=False):
         populate_template = """
     populate_table(apps, schema_editor,
                    {from_app}, {from_model},
-                   {to_app}, {to_model})
-"""
+                   {to_app}, {to_model})"""
         empty_template = """
     empty_table(apps, schema_editor,
-                {to_app}, {to_model})
-"""
+                {to_app}, {to_model})"""
 
         forwards_backwards_template = """
 def forwards(apps, schema_editor):
@@ -92,20 +89,15 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    {backwards}
-        """
+    {backwards}"""
 
-        from_model = apps.get_model(FROM_APP, FROM_MODEL)
-        to_model = apps.get_model(app_label, model_name)
-
+        from_model = apps.get_model(from_app_label, from_model_name)
+        to_model = apps.get_model(to_app_label, to_model_name)
         if reverse:
             from_model, to_model = to_model, from_model
 
         # We need to populate the model table, but also the automatically
         # created M2M tables from the corresponding table on the source model
-
-        model_pairs = [(from_model, to_model)]
-
         model_pairs = [((from_model._meta.app_label, from_model.__name__),
                         (to_model._meta.app_label, to_model.__name__))]
 
@@ -149,5 +141,5 @@ def backwards(apps, schema_editor):
                     }
         forwards_backwards = forwards_backwards_template.format(**data)
 
-        self.create_runpython_migration(app_label, forwards_backwards,
+        self.create_runpython_migration(to_app_label, forwards_backwards,
                                         [populate_table, empty_table, make_table_name, fetch_with_column_names])

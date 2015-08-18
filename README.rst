@@ -74,16 +74,18 @@ Usage
 
 5. Create a data migration that will populate this table from ``auth.User``::
 
-     ./manage.py create_custom_user_populate_migration accounts.User
+     ./manage.py create_custom_user_populate_migration auth.User accounts.User
+
+   All the commands to create migrations take arguments <from_model> <to_model> like this.
 
 6. Create a schema migration that will alter every FK that points at ``auth.User``
    to point at your model instead::
 
-     ./manage.py create_custom_user_schema_migration accounts.User
+     ./manage.py create_custom_user_schema_migration auth.User accounts.User
 
 7. Create a data migration that will fix up the contenttypes tables::
 
-     ./manage.py create_custom_user_contenttypes_migration accounts.User
+     ./manage.py create_custom_user_contenttypes_migration auth.User accounts.User
 
 8. Change the ``AbstractUser`` import in your models.py to::
 
@@ -113,7 +115,7 @@ Usage
 
 12. Create a migration that empties the ``auth.User`` table::
 
-      ./manage.py create_custom_user_empty_migration accounts.User
+      ./manage.py create_custom_user_empty_migration auth.User accounts.User
 
 13. Run all the migrations::
 

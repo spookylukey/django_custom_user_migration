@@ -39,11 +39,11 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         # Step 4:
         self.shell("./manage.py makemigrations accounts")
         # Step 5:
-        self.shell("./manage.py create_custom_user_populate_migration accounts.User")
+        self.shell("./manage.py create_custom_user_populate_migration auth.User accounts.User")
         # Step 6:
-        self.shell("./manage.py create_custom_user_schema_migration accounts.User")
+        self.shell("./manage.py create_custom_user_schema_migration auth.User accounts.User")
         # Step 7:
-        self.shell("./manage.py create_custom_user_contenttypes_migration accounts.User")
+        self.shell("./manage.py create_custom_user_contenttypes_migration auth.User accounts.User")
         # Step 8:
         self.replace_user_import("from django_custom_user_migration.models import AbstractUser",
                                  "from django.contrib.auth.models import AbstractUser")
@@ -53,11 +53,11 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         self.shell("./manage.py makemigrations accounts")
         # Step 11 - skip
         # Step 12:
-        self.shell("./manage.py create_custom_user_empty_migration accounts.User")
+        self.shell("./manage.py create_custom_user_empty_migration auth.User accounts.User")
         # Step 13:
         self.shell("./manage.py migrate --noinput")
         # Step 14:
-        # Custom management command to test migrated
+        # Custom management command to test migrated data
         self.shell("./manage.py myproject_test_migrated_data")
 
         # Test reverse migrations
