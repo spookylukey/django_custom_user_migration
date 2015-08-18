@@ -20,36 +20,63 @@ def get_last_migration(app_label):
             return leaf[1]
 
 
+def make_table_name(apps, app, model):
+    try:
+        m = apps.get_model(app, model)
+        if m._meta.db_table:
+            return m._meta.db_table
+    except LookupError:
+        pass  # for M2M fields
+    return "{0}_{1}".format(app, model).lower()
+
+
+def fetch_with_column_names(schema_editor, sql, params):
+    c = schema_editor.connection.connection.execute(sql, params)
+    rows = c.fetchall()
+    return rows, [r[0] for r in c.description]
+
+
 def populate_table(apps, schema_editor, from_app, from_model, to_app, to_model):
+    # Due to swapped out models, which means that some model classes (and/or
+    # their auto-created M2M tables) do not exist or don't function correctly,
+    # it is better to use SELECT / INSERT than attempting to use ORM.
     import math
 
-    FromModel = apps.get_model(from_app, from_model)
-    ToModel = apps.get_model(to_app, to_model)
+    from_table_name = make_table_name(apps, from_app, from_model)
+    to_table_name = make_table_name(apps, to_app, to_model)
 
-    # FromModel.objects is not available, because it has been swapped out,
-    # but we can use _default_manager
-
-    max_id = FromModel._default_manager.order_by('-id')[0].id
+    max_id = fetch_with_column_names(schema_editor, "SELECT MAX(id) FROM {0};".format(from_table_name), [])[0][0][0]
+    if max_id is None:
+        max_id = 1
 
     # Use batches to avoid loading entire table into memory
-    BATCH_SIZE = 200
+    BATCH_SIZE = 100
 
     # Careful with off-by-one errors where max_id is a multiple of BATCH_SIZE
     for batch_num in range(0, int(math.floor(max_id / BATCH_SIZE)) + 1):
         start = batch_num * BATCH_SIZE
         stop = start + BATCH_SIZE
-        old_rows = list(FromModel._default_manager.order_by('id')[start:stop])
+        ops = schema_editor.connection.ops
+        old_rows, description = fetch_with_column_names(schema_editor,
+                                                        "SELECT * FROM {0} WHERE id >= ? AND id < ?;".format(
+                                                            ops.quote_name(from_table_name)),
+                                                        [start, stop])
+        for row in old_rows:
+            values_sql = ",".join("?" * len(description))
+            columns_sql = ",".join(ops.quote_name(col_name) for col_name in description)
+            sql = "INSERT INTO {0} ({1}) VALUES ({2});".format(ops.quote_name(to_table_name),
+                                                               columns_sql,
+                                                               values_sql)
 
-        new_rows = [ToModel(**{k: v for k, v in u.__dict__.items()
-                               if not k.startswith('_')})
-                    for u in old_rows]
-
-        ToModel.objects.bulk_create(new_rows)
+            # could collect and do 'executemany', but sqlite doesn't let us
+            # execute more than one statement at once it seems.
+            schema_editor.connection.connection.execute(sql, row)
 
 
 def empty_table(apps, schema_editor, from_app, from_model):
-    ToModel = apps.get_model(from_app, from_model)
-    ToModel._default_manager.all().delete()
+    from_table_name = make_table_name(apps, from_app, from_model)
+    ops = schema_editor.connection.ops
+    schema_editor.execute("DELETE FROM {0};".format(ops.quote_name(from_table_name)))
 
 
 def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, to_model_name):

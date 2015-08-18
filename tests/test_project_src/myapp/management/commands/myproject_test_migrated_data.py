@@ -1,9 +1,10 @@
 from __future__ import absolute_import, unicode_literals
 
+from django.db import connection
 from django.core.management.base import BaseCommand
 
 from accounts.models import User
-from myapp.models import MyModel
+from myapp.models import MyModel, OtherModel
 
 
 class Command(BaseCommand):
@@ -18,9 +19,9 @@ class Command(BaseCommand):
         if user1.email != "test@user.com":
             raise AssertionError("user testuser doesn't have expected email address")
 
-        # TODO
-        # if "Test Group" not in [g.name for g in user1.groups.all()]:
-        #    raise AssertionError("user testuser doesn't have expected 'Test Group' in groups")
+        if "Test Group" not in [g.name for g in user1.groups.all()]:
+            raise AssertionError("user testuser doesn't have expected 'Test Group' in groups")
+
         mymodel = MyModel.objects.get(name="My model")
         if mymodel.owner != user1:
             raise AssertionError("MyModel.owner not pointing to right object")
@@ -32,3 +33,8 @@ class Command(BaseCommand):
         lg = log_entries[0]
         if lg.get_edited_object() != user2:
             raise AssertionError("LogEntry contents not migrated properly")
+
+        other = OtherModel.objects.get(name="Some thing")
+        other_owners = other.owners.all()
+        if len(other_owners) != 2:
+            raise AssertionError("OtherModel.owners not populated")

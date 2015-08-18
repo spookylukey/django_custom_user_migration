@@ -8,3 +8,8 @@ from django.conf import settings
 class MyModel(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+
+class OtherModel(models.Model):
+    name = models.CharField(max_length=255)
+    owners = models.ManyToManyField(settings.AUTH_USER_MODEL)
