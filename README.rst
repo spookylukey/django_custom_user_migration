@@ -6,10 +6,11 @@ django_custom_user_migration
         :target: https://pypi.python.org/pypi/django_custom_user_migration
 
 
-django_custom_user_migration will help you create a migration to using a custom
-User model with Django
+django_custom_user_migration creates migrations for you to move an existing
+Django project that uses ``django.contrib.auth.models.User`` to using a custom user
+model.
 
-* Free software: BSD license
+Free software: BSD license
 
 Use case
 --------
