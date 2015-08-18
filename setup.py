@@ -41,6 +41,7 @@ setup(
     keywords='Django custom user model migration',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
+        'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
