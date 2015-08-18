@@ -31,7 +31,8 @@ def make_table_name(apps, app, model):
 
 
 def fetch_with_column_names(schema_editor, sql, params):
-    c = schema_editor.connection.connection.execute(sql, params)
+    c = schema_editor.connection.cursor()
+    c.execute(sql, params)
     rows = c.fetchall()
     return rows, [r[0] for r in c.description]
 
@@ -58,7 +59,7 @@ def populate_table(apps, schema_editor, from_app, from_model, to_app, to_model):
         stop = start + BATCH_SIZE
         ops = schema_editor.connection.ops
         old_rows, old_cols = fetch_with_column_names(schema_editor,
-                                                     "SELECT * FROM {0} WHERE id >= ? AND id < ?;".format(
+                                                     "SELECT * FROM {0} WHERE id >= %s AND id < %s;".format(
                                                          ops.quote_name(from_table_name)),
                                                      [start, stop])
 
@@ -71,15 +72,15 @@ def populate_table(apps, schema_editor, from_app, from_model, to_app, to_model):
         new_cols = list(map(map_fk_col, old_cols))
 
         for row in old_rows:
-            values_sql = ",".join("?" * len(new_cols))
-            columns_sql = ",".join(ops.quote_name(col_name) for col_name in new_cols)
+            values_sql = ", ".join(["%s"] * len(new_cols))
+            columns_sql = ", ".join(ops.quote_name(col_name) for col_name in new_cols)
             sql = "INSERT INTO {0} ({1}) VALUES ({2});".format(ops.quote_name(to_table_name),
                                                                columns_sql,
                                                                values_sql)
 
             # could collect and do 'executemany', but sqlite doesn't let us
             # execute more than one statement at once it seems.
-            schema_editor.connection.connection.execute(sql, row)
+            schema_editor.execute(sql, row)
 
 
 def empty_table(apps, schema_editor, from_app, from_model):
