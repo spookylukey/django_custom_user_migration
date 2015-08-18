@@ -122,7 +122,7 @@ def backwards(apps, schema_editor):{backwards}
             )
 
         # Empty in reverse order i.e. M2M tables first
-        for ((from_a, from_m), (to_a, to_m)) in model_pairs:
+        for ((from_a, from_m), (to_a, to_m)) in reversed(model_pairs):
             empty += empty_template.format(
                 from_app=from_a,
                 from_model=from_m,
