@@ -45,7 +45,8 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         # Step 7:
         self.shell("./manage.py create_custom_user_contenttypes_migration accounts.User")
         # Step 8:
-        self.replace_user_import()
+        self.replace_user_import("from django_custom_user_migration.models import AbstractUser",
+                                 "from django.contrib.auth.models import AbstractUser")
         # Step 9:
         self.set_auth_user_model("accounts.User")
         # Step 10:
@@ -57,6 +58,13 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         self.shell("./manage.py migrate --noinput")
         # Step 14:
         # Custom management command to test migrated
+        self.shell("./manage.py myproject_test_migrated_data")
+
+        # Test reverse migrations
+        self.set_auth_user_model("auth.User")
+        self.replace_user_import("from django.contrib.auth.models import AbstractUser",
+                                 "from django_custom_user_migration.models import AbstractUser")
+        self.shell("./manage.py migrate accounts zero")
         self.shell("./manage.py myproject_test_migrated_data")
 
     def copy_test_project(self):
@@ -92,10 +100,9 @@ class User(AbstractUser):
     pass
             """.encode('utf-8'))
 
-    def replace_user_import(self):
+    def replace_user_import(self, from_import, to_import):
         with change_file("test_project/accounts/models.py") as f:
-            f.write(f.contents.replace("from django_custom_user_migration.models import AbstractUser",
-                                       "from django.contrib.auth.models import AbstractUser"))
+            f.write(f.contents.replace(from_import, to_import))
 
     def set_auth_user_model(self, model_path):
         with change_file("test_project/myapp/settings.py") as f:

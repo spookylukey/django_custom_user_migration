@@ -126,7 +126,10 @@ Usage
 14. Test everything!
 
     Note that all migrations generated are reversible, but before running them
-    in reverse you should set AUTH_USER_MODEL back to `"auth.User"`.
+    in reverse you should set AUTH_USER_MODEL back to `"auth.User"`, and you
+    will also therefore need to use the
+    ``django_custom_user_migration.models.AbstractModel`` as a base class or you
+    will get validation errors that prevent migrations from running.
 
 15. Uninstall ``django_custom_user_migration``, you don't need it any more. The
     migrations generated run without it being installed.

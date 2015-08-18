@@ -4,20 +4,25 @@ from django.db import connection
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth import get_user_model
+
+from accounts.models import User as NewUser
 from myapp.models import MyModel, OtherModel
 
-User = get_user_model()
+# We test against CurrentUser, so that these tests
+# will work whether user model is accounts.User (at end of forwards migrations)
+# or auth.User (after doing forwards migrations and then backwards)
+CurrentUser = get_user_model()
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        users = User.objects.all()
+        users = CurrentUser.objects.all()
         if not len(users) > 0:
             raise AssertionError("No users created")
 
-        user1 = User.objects.get(username="testuser")
-        user2 = User.objects.get(username="otheruser")
+        user1 = CurrentUser.objects.get(username="testuser")
+        user2 = CurrentUser.objects.get(username="otheruser")
         if user1.email != "test@user.com":
             raise AssertionError("user testuser doesn't have expected email address")
 
@@ -41,7 +46,9 @@ class Command(BaseCommand):
         if len(other_owners) != 2:
             raise AssertionError("OtherModel.owners not populated")
 
-        for table in ["auth_user", "auth_user_groups", "auth_user_user_permissions"]:
-            old_rows = connection.cursor().execute("SELECT * FROM {0};".format(table)).fetchall()
-            if len(old_rows) > 0:
-                raise AssertionError("{0} table not emptied".format(table))
+        if CurrentUser is NewUser:
+            # end of migration - tables for auth.User will still exist, but should be empty.
+            for table in ["auth_user", "auth_user_groups", "auth_user_user_permissions"]:
+                old_rows = connection.cursor().execute("SELECT * FROM {0};".format(table)).fetchall()
+                if len(old_rows) > 0:
+                    raise AssertionError("{0} table not emptied".format(table))
