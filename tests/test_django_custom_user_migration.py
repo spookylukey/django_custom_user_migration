@@ -39,21 +39,21 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         # Step 4:
         self.shell("./manage.py makemigrations accounts")
         # Step 5:
-        self.shell("./manage.py create_custom_user_populate_migration auth.User accounts.User")
+        self.shell("./manage.py create_custom_user_populate_migration auth.User accounts.MyUser")
         # Step 6:
-        self.shell("./manage.py create_custom_user_schema_migration auth.User accounts.User")
+        self.shell("./manage.py create_custom_user_schema_migration auth.User accounts.MyUser")
         # Step 7:
-        self.shell("./manage.py create_custom_user_contenttypes_migration auth.User accounts.User")
+        self.shell("./manage.py create_custom_user_contenttypes_migration auth.User accounts.MyUser")
         # Step 8:
         self.replace_user_import("from django_custom_user_migration.models import AbstractUser",
                                  "from django.contrib.auth.models import AbstractUser")
         # Step 9:
-        self.set_auth_user_model("accounts.User")
+        self.set_auth_user_model("accounts.MyUser")
         # Step 10:
         self.shell("./manage.py makemigrations accounts")
         # Step 11 - skip
         # Step 12:
-        self.shell("./manage.py create_custom_user_empty_migration auth.User accounts.User")
+        self.shell("./manage.py create_custom_user_empty_migration auth.User accounts.MyUser")
         # Step 13:
         self.shell("./manage.py migrate --noinput")
         # Step 14:
@@ -96,7 +96,7 @@ class TestCreateCustomUserMigration(unittest.TestCase):
             f.write("""
 from django_custom_user_migration.models import AbstractUser
 
-class User(AbstractUser):
+class MyUser(AbstractUser):
     pass
             """.encode('utf-8'))
 

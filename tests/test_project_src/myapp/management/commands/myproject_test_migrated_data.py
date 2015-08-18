@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from django.contrib.auth import get_user_model
 
-from accounts.models import User as NewUser
+from accounts.models import MyUser as NewUser
 from myapp.models import MyModel, OtherModel
 
 # We test against CurrentUser, so that these tests
