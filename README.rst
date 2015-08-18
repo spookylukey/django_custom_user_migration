@@ -22,7 +22,7 @@ provided by a 3rd party.
 Prerequisites
 -------------
 
-* Django 1.7 or later
+* Django 1.8 or later
 * Python 2.7 or Python 3.3+
 
 You must have ensured that everywhere in your project (including 3rd party
@@ -33,6 +33,9 @@ libraries) you are using ``AUTH_USER_MODEL`` and
 
 Usage
 -----
+
+There are a lot of steps below, but it is almost all copy/paste, and with no
+complications you could be done in 5 minutes.
 
 1. Install ``django_custom_user_migration`` to your project::
 
