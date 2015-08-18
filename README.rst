@@ -142,3 +142,16 @@ migrations etc. You could even make it inherit from ``AbstractBaseUser`` or some
 other model instead of ``AbstractUser``, provided that you write/generate the
 necessary data migrations to cope with missing fields, and update your admin and
 application accordingly.
+
+
+Other notes
+-----------
+
+* Use at own risk, etc. etc.
+
+* Tested on sqlite and postgres
+
+* If you have other tables with FKs to auth.User, that Django doesn't know
+  about, you will have to deal with those manually with a custom migration. (In
+  really old Django projects, you might have old tables like 'auth_message'
+  kicking around which you'll need to delete).
