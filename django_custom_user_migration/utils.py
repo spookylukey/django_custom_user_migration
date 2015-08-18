@@ -68,7 +68,7 @@ def populate_table(apps, schema_editor, from_app, from_model, to_app, to_model):
         base_from_model = from_model.split("_")[0]
         base_to_model = to_model.split("_")[0]
         map_fk_col = lambda c: "{0}_id".format(base_to_model).lower() if c == "{0}_id".format(base_from_model).lower() else c
-        new_cols = map(map_fk_col, old_cols)
+        new_cols = list(map(map_fk_col, old_cols))
 
         for row in old_rows:
             values_sql = ",".join("?" * len(new_cols))
