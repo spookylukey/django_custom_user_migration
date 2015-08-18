@@ -12,18 +12,19 @@ class Command(CustomUserCommand):
         forwards_backwards = """
 def forwards(apps, schema_editor):
     change_foreign_keys(apps, schema_editor,
-                        {from_app}, {from_model},
-                        {to_app}, {to_model})
+                        "{from_app}", "{from_model}",
+                        "{to_app}", "{to_model}")
+
 
 def backwards(apps, schema_editor):
     change_foreign_keys(apps, schema_editor,
-                        {to_app}, {to_model},
-                        {from_app}, {from_model})
-        """.format(
-            from_app=repr(from_app_label),
-            from_model=repr(from_model_name),
-            to_app=repr(to_app_label),
-            to_model=repr(to_model_name),
+                        "{to_app}", "{to_model}",
+                        "{from_app}", "{from_model}")
+""".format(
+            from_app=from_app_label,
+            from_model=from_model_name,
+            to_app=to_app_label,
+            to_model=to_model_name,
         )
 
         FromModel = apps.get_model(from_app_label, from_model_name)

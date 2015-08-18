@@ -77,19 +77,18 @@ class CustomUserPopulateCommand(CustomUserCommand):
     def create_populate_migration(self, from_app_label, from_model_name, to_app_label, to_model_name, reverse=False):
         populate_template = """
     populate_table(apps, schema_editor,
-                   {from_app}, {from_model},
-                   {to_app}, {to_model})"""
+                   "{from_app}", "{from_model}",
+                   "{to_app}", "{to_model}")"""
         empty_template = """
     empty_table(apps, schema_editor,
-                {to_app}, {to_model})"""
+                "{to_app}", "{to_model}")"""
 
         forwards_backwards_template = """
-def forwards(apps, schema_editor):
-    {forwards}
+def forwards(apps, schema_editor):{forwards}
 
 
-def backwards(apps, schema_editor):
-    {backwards}"""
+def backwards(apps, schema_editor):{backwards}
+"""
 
         from_model = apps.get_model(from_app_label, from_model_name)
         to_model = apps.get_model(to_app_label, to_model_name)
@@ -116,19 +115,19 @@ def backwards(apps, schema_editor):
         empty = ""
         for ((from_a, from_m), (to_a, to_m)) in model_pairs:
             populate += populate_template.format(
-                from_app=repr(from_a),
-                from_model=repr(from_m),
-                to_app=repr(to_a),
-                to_model=repr(to_m),
+                from_app=from_a,
+                from_model=from_m,
+                to_app=to_a,
+                to_model=to_m,
             )
 
         # Empty in reverse order i.e. M2M tables first
         for ((from_a, from_m), (to_a, to_m)) in model_pairs:
             empty += empty_template.format(
-                from_app=repr(from_a),
-                from_model=repr(from_m),
-                to_app=repr(to_a),
-                to_model=repr(to_m),
+                from_app=from_a,
+                from_model=from_m,
+                to_app=to_a,
+                to_model=to_m,
             )
 
         if not reverse:

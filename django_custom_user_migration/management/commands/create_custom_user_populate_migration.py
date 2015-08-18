@@ -1,8 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
-from django.apps import apps
-from django.db import models
-
 from .base import CustomUserPopulateCommand
 
 
