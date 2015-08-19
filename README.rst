@@ -48,8 +48,8 @@ complications you could be done in 5 minutes.
 
 3. Create a custom user model which is identical to Django's ``auth.User``, but
    in an app in your own project. For this process to work correctly, you will
-   need to create a new, dedicated app just for this model - we'll call it
-   ``accounts`` from now on::
+   need to create a new app for this model - we'll call it ``accounts`` from now
+   on::
 
      # accounts/models.py
 
@@ -74,7 +74,9 @@ complications you could be done in 5 minutes.
 
      ./manage.py makemigrations accounts
 
-   This migration must be ``0001_initial`` or you will have problems later on.
+   This migration must be ``0001_initial`` or you will have problems later on,
+   as mentioned in the docs for `AUTH_USER_MODEL
+   <https://docs.djangoproject.com/en/1.8/ref/settings/#auth-user-model>`_.
 
    The migration will also create M2M tables for the M2M fields specified
    on ``AbstractUser`` itself.
