@@ -76,7 +76,10 @@ complications you could be done in 5 minutes.
 
    This migration must be ``0001_initial`` or you will have problems later on.
 
-5. Create a data migration that will populate this table from ``auth.User``::
+   The migration will also create M2M tables for the M2M fields specified
+   on ``AbstractUser`` itself.
+
+5. Create a data migration that will populate these tables from ``auth.User``::
 
      ./manage.py create_custom_user_populate_migration auth.User accounts.User
 
@@ -125,10 +128,6 @@ complications you could be done in 5 minutes.
 
       ./manage.py migrate
 
-    All the migrations are reversible, so you should be able to get back to
-    previous states. Obviously, you would test this thoroughly before doing it
-    in production.
-
 14. Test everything!
 
     Note that all migrations generated are reversible, but before running them
@@ -155,7 +154,16 @@ Other notes
 
 * Tested on sqlite and postgres
 
-* If you have other tables with FKs to auth.User, that Django doesn't know
+* If you have other tables with FKs to ``auth.User`` that Django doesn't know
   about, you will have to deal with those manually with a custom migration. (In
   really old Django projects, you might have old tables like 'auth_message'
   kicking around which you'll need to delete).
+
+* Almost everything included in this library is generic regarding the models
+  involved, and uses introspection rather than hard-coding things about
+  ``auth.User``. The main exception is
+  ``django_custom_user_migration.models.AbstractUser``, which is a copy-paste
+  job from Django sources.
+
+  This means that you may be able to use the code here to migrate other
+  swappable models. This has not been tested however.
