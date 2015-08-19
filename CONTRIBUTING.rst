@@ -17,7 +17,7 @@ Report bugs at https://bitbucket.org/spookylukey/django_custom_user_migration/is
 
 If you are reporting a bug, please include:
 
-* Your operating system name and version.
+* Database name and version.
 * Any details about your local setup that might be helpful in troubleshooting.
 * Detailed steps to reproduce the bug.
 
@@ -32,13 +32,6 @@ Implement Features
 
 Look through the BitBucket issues for features. Anything tagged with "feature"
 is open to whoever wants to implement it.
-
-Write Documentation
-~~~~~~~~~~~~~~~~~~~
-
-django_custom_user_migration could always use more documentation, whether as part of the
-official django_custom_user_migration docs, in docstrings, or even on the web in blog posts,
-articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
