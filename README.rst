@@ -138,6 +138,18 @@ complications you could be done in 5 minutes.
     ``django_custom_user_migration.models.AbstractModel`` as a base class or you
     will get validation errors that prevent migrations from running.
 
+    When running Django unit tests, you may have problems when Django attempts
+    to run your migrations in a test database. Since your AUTH_USER_MODEL no
+    longer points to ``auth.User``, that table won't be created and the
+    migrations which expect it to exist will fail.
+
+    In the short term, this can be fixed as per this advice:
+    http://stackoverflow.com/a/28560805/182604
+
+    Long term, after your migrations have been deployed, this can be fixed by
+    squashing the ``accounts`` migrations into a single migration that removes
+    all the additional migrations created from step 5 onwards above.
+
 15. Uninstall ``django_custom_user_migration``, you don't need it any more. The
     migrations generated run without it being installed.
 
