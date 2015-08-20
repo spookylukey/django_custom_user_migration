@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.db import connection
+from django.db import models
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth import get_user_model
@@ -54,3 +55,32 @@ class Command(BaseCommand):
                 old_rows = cursor.fetchall()
                 if len(old_rows) > 0:
                     raise AssertionError("{0} table not emptied".format(table))
+
+        if CurrentUser is NewUser:
+            # end of migration
+            max_user_id = max_id(CurrentUser)
+            # Next line will probably raisedjango.db.utils.IntegrityError if
+            # postgres auto increment ID has not been set properly.
+            new_user = CurrentUser.objects.create(username='newuser1')
+
+            # Double check
+            if new_user.id != max_user_id + 1:
+                raise ValueError("New user newuser1 didn't have expected id {0}".format(max_user_id + 1))
+
+            # Should be able to do inserts on M2M tables too:
+            new_user.groups.add(user1.groups.all()[0])
+
+        if CurrentUser is not NewUser:
+            # end of reverse migration
+            # The newuser1 should also be present
+            if not CurrentUser.objects.filter(username='newuser1').exists():
+                raise ValueError("Reverse migration didn't create everything")
+
+            max_user_id = max_id(CurrentUser)
+            new_user_2 = CurrentUser.objects.create(username='newuser2')
+            if new_user_2.id != max_user_id + 1:
+                raise ValueError("New user newuser2 didn't have expected id {0}".format(max_user_id + 1))
+
+
+def max_id(model):
+    return model.objects.all().aggregate(models.Max('id'))['id__max']

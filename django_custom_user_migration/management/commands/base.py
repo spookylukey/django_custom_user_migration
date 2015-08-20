@@ -11,7 +11,7 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.state import ProjectState
 from django.db.migrations.writer import MigrationWriter
 
-from django_custom_user_migration.utils import populate_table, empty_table, make_table_name, fetch_with_column_names
+from django_custom_user_migration.utils import populate_table, empty_table, make_table_name, fetch_with_column_names, get_max_id, reset_sequence
 
 
 class CustomUserCommand(BaseCommand):
@@ -141,4 +141,5 @@ def backwards(apps, schema_editor):{backwards}
         forwards_backwards = forwards_backwards_template.format(**data)
 
         self.create_runpython_migration(to_app_label, forwards_backwards,
-                                        [populate_table, empty_table, make_table_name, fetch_with_column_names])
+                                        [populate_table, empty_table, make_table_name, fetch_with_column_names,
+                                         get_max_id, reset_sequence])
