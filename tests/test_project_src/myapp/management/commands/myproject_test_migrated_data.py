@@ -49,6 +49,8 @@ class Command(BaseCommand):
         if CurrentUser is NewUser:
             # end of migration - tables for auth.User will still exist, but should be empty.
             for table in ["auth_user", "auth_user_groups", "auth_user_user_permissions"]:
-                old_rows = connection.cursor().execute("SELECT * FROM {0};".format(table)).fetchall()
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM {0};".format(table))
+                old_rows = cursor.fetchall()
                 if len(old_rows) > 0:
                     raise AssertionError("{0} table not emptied".format(table))

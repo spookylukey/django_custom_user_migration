@@ -8,10 +8,11 @@ import subprocess
 import unittest
 
 
-class TestCreateCustomUserMigration(unittest.TestCase):
+class TestProcessBase(object):
 
     def setUp(self):
         self.copy_test_project()
+        self.set_db()
 
     def tearDown(self):
         self.delete_test_project()
@@ -80,13 +81,23 @@ class TestCreateCustomUserMigration(unittest.TestCase):
         subprocess.check_call("cd test_project; " + command, shell=True)
 
     def add_to_installed_apps(self, item):
-        SPLIT_START = "    # INSTALLED_APPS_start"
-        SPLIT_END = "    # INSTALLED_APPS_end"
-        with change_file("test_project/myapp/settings.py") as f:
-            before, after = f.contents.split(SPLIT_START)
-            middle, after = after.split(SPLIT_END)
-            middle += "    " + repr(item) + ",\n"
-            settings_file = before + SPLIT_START + middle + SPLIT_END + after
+        self.change_file_chunk("test_project/myapp/settings.py",
+                               "    # INSTALLED_APPS_start",
+                               "    # INSTALLED_APPS_end",
+                               lambda chunk: chunk + repr(item) + ",\n")
+
+    def set_databases_setting(self, text):
+        self.change_file_chunk("test_project/myapp/settings.py",
+                               "# DATABASES_start",
+                               "# DATABASES_end",
+                               lambda chunk: text)
+
+    def change_file_chunk(self, filename, start_marker, end_marker, replace_func):
+        with change_file(filename) as f:
+            before, after = f.contents.split(start_marker)
+            middle, after = after.split(end_marker)
+            middle = replace_func(middle)
+            settings_file = before + start_marker + middle + end_marker + after
             f.write(settings_file)
 
     def create_custom_user_model(self):
@@ -107,6 +118,56 @@ class MyUser(AbstractUser):
     def set_auth_user_model(self, model_path):
         with change_file("test_project/myapp/settings.py") as f:
             f.write(f.contents + "\nAUTH_USER_MODEL = {0}\n".format(repr(model_path)))
+
+
+class TestProcessSqlite(TestProcessBase, unittest.TestCase):
+
+    def set_db(self):
+        self.set_databases_setting("""
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "tests.db"
+    }
+}
+""")
+
+
+class TestProcessPostgres(TestProcessBase, unittest.TestCase):
+
+    def setUp(self):
+        super(TestProcessPostgres, self).setUp()
+        self.clear_db()
+
+    def tearDown(self):
+        self.clear_db()
+        super(TestProcessPostgres, self).tearDown()
+
+    def clear_db(self):
+        import psycopg2
+        with psycopg2.connect(database="django_custom_user_migration_tests",
+                              user="django_custom_user_migration_tests",
+                              password="test") as connection:
+            cursor = connection.cursor()
+            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public';")
+            tables = [r[0] for r in cursor.fetchall()]
+            for t in tables:
+                cursor.execute("DROP TABLE IF EXISTS {0} CASCADE;".format(t))
+
+    def set_db(self):
+        self.set_databases_setting("""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'django_custom_user_migration_tests',
+        'USER': 'django_custom_user_migration_tests',
+        'PASSWORD': 'test',
+        'HOST': 'localhost',
+        'PORT': 5432,
+        'CONN_MAX_AGE': 30,
+    }
+}
+""")
 
 
 class change_file(object):

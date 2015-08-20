@@ -73,6 +73,15 @@ Ready to contribute? Here's how to set up `django_custom_user_migration` for loc
 
    To get tox, just pip install it into your virtualenv.
 
+   If you want to test against Postgres, you'll need to create a local Postgres
+   DB with name 'django_custom_user_migration_tests', username
+   'django_custom_user_migration_tests', password 'tests', and permissions to
+   create/delete tables etc.
+
+   You can run specific tests using::
+
+     ./runtests.py tests.test_django.custom_user_migration....
+
 6. Commit your changes and push your branch to BitBucket::
 
     $ hg commit -i

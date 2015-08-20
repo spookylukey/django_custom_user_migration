@@ -1,11 +1,7 @@
 DEBUG = True
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "tests.db"
-    }
-}
+# DATABASES_start
+# DATABASES_end
 
 INSTALLED_APPS = [
     # INSTALLED_APPS_start
