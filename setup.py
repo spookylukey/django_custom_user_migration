@@ -23,7 +23,7 @@ test_requirements = requirements
 
 setup(
     name='django_custom_user_migration',
-    version='0.1.0',
+    version='0.2.0',
     description="django_custom_user_migration will help you create a migration to using a custom User model with Django",
     long_description=readme + '\n\n' + history,
     author="Luke Plant",
