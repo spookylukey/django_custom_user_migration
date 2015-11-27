@@ -168,7 +168,7 @@ application accordingly.
 Other notes
 -----------
 
-* Use at own risk, etc. etc.
+* Use at own risk, make sure you back up your data first, etc. etc.
 
 * Tested on sqlite and postgres
 
