@@ -60,17 +60,20 @@ def populate_table(apps, schema_editor, from_app, from_model, to_app, to_model):
         start = batch_num * BATCH_SIZE
         stop = start + BATCH_SIZE
         ops = schema_editor.connection.ops
-        old_rows, old_cols = fetch_with_column_names(schema_editor,
-                                                     "SELECT * FROM {0} WHERE id >= %s AND id < %s;".format(
-                                                         ops.quote_name(from_table_name)),
-                                                     [start, stop])
+        old_rows, old_cols = fetch_with_column_names(
+            schema_editor,
+            "SELECT * FROM {0} WHERE id >= %s AND id < %s;".format(
+                ops.quote_name(from_table_name)),
+            [start, stop])
 
         # The column names in the new table aren't necessarily the same
         # as in the old table - things like 'user_id' vs 'myuser_id'.
         # We have to map them, and this seems to be good enough for our needs:
         base_from_model = from_model.split("_")[0]
         base_to_model = to_model.split("_")[0]
-        map_fk_col = lambda c: "{0}_id".format(base_to_model).lower() if c == "{0}_id".format(base_from_model).lower() else c
+        map_fk_col = (lambda c: "{0}_id".format(base_to_model).lower()
+                      if c == "{0}_id".format(base_from_model).lower()
+                      else c)
         new_cols = list(map(map_fk_col, old_cols))
 
         for row in old_rows:
@@ -93,7 +96,8 @@ def empty_table(apps, schema_editor, from_app, from_model):
 
 
 def get_max_id(schema_editor, table_name):
-    max_id = fetch_with_column_names(schema_editor, "SELECT MAX(id) FROM {0};".format(table_name), [])[0][0][0]
+    max_id = fetch_with_column_names(
+        schema_editor, "SELECT MAX(id) FROM {0};".format(table_name), [])[0][0][0]
     if max_id is None:
         max_id = 0
     return max_id
@@ -103,7 +107,8 @@ def reset_sequence(apps, schema_editor, app, model):
     if schema_editor.connection.vendor == 'postgresql':
         table_name = make_table_name(apps, app, model)
         sequence_name = "{0}_id_seq".format(table_name)
-        schema_editor.execute("SELECT setval(%s, %s, false);", [sequence_name, get_max_id(schema_editor, table_name) + 1])
+        schema_editor.execute("SELECT setval(%s, %s, false);",
+                              [sequence_name, get_max_id(schema_editor, table_name) + 1])
 
 
 def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, to_model_name):
@@ -116,7 +121,8 @@ def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, 
     # Only one of them will actually have FK fields pointing to them.
 
     print()
-    fields = FromModel._meta.get_fields(include_hidden=True) + ToModel._meta.get_fields(include_hidden=True)
+    fields = (FromModel._meta.get_fields(include_hidden=True) +
+              ToModel._meta.get_fields(include_hidden=True))
 
     for rel in fields:
         if not hasattr(rel, 'field') or not isinstance(rel.field, models.ForeignKey):
@@ -175,5 +181,6 @@ def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, 
 
 def fix_contenttype(apps, schema_editor, from_app, from_model, to_app, to_model):
     from_model, to_model = from_model.lower(), to_model.lower()
-    schema_editor.execute("UPDATE django_content_type SET app_label=%s, model=%s WHERE app_label=%s AND model=%s;",
-                          [to_app, to_model, from_app, from_model])
+    schema_editor.execute(
+        "UPDATE django_content_type SET app_label=%s, model=%s WHERE app_label=%s AND model=%s;",
+        [to_app, to_model, from_app, from_model])

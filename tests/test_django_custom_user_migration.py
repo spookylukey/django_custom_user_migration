@@ -44,7 +44,8 @@ class TestProcessBase(object):
         # Step 6:
         self.shell("./manage.py create_custom_user_schema_migration auth.User accounts.MyUser")
         # Step 7:
-        self.shell("./manage.py create_custom_user_contenttypes_migration auth.User accounts.MyUser")
+        self.shell("./manage.py create_custom_user_contenttypes_migration "
+                   "auth.User accounts.MyUser")
         # Step 8:
         self.replace_user_import("from django_custom_user_migration.models import AbstractUser",
                                  "from django.contrib.auth.models import AbstractUser")
@@ -149,7 +150,8 @@ class TestProcessPostgres(TestProcessBase, unittest.TestCase):
                               user="django_custom_user_migration_tests",
                               password="test") as connection:
             cursor = connection.cursor()
-            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public';")
+            cursor.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public';")
             tables = [r[0] for r in cursor.fetchall()]
             for t in tables:
                 cursor.execute("DROP TABLE IF EXISTS {0} CASCADE;".format(t))

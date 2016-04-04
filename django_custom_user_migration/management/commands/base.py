@@ -11,7 +11,8 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.state import ProjectState
 from django.db.migrations.writer import MigrationWriter
 
-from django_custom_user_migration.utils import populate_table, empty_table, make_table_name, fetch_with_column_names, get_max_id, reset_sequence
+from django_custom_user_migration.utils import (empty_table, fetch_with_column_names, get_max_id,
+                                                make_table_name, populate_table, reset_sequence)
 
 
 class CustomUserCommand(BaseCommand):
@@ -65,16 +66,18 @@ class CustomUserCommand(BaseCommand):
                                                             "\nclass Migration")
 
                 # Add operations:
-                migration_string = migration_string.replace("operations = [",
-                                                            "operations = [\n"
-                                                            "        migrations.RunPython(forwards, backwards),")
+                migration_string = migration_string.replace(
+                    "operations = [",
+                    "operations = [\n"
+                    "        migrations.RunPython(forwards, backwards),")
                 with open(writer.path, "wb") as fh:
                     fh.write(migration_string.encode('utf-8'))
 
 
 class CustomUserPopulateCommand(CustomUserCommand):
 
-    def create_populate_migration(self, from_app_label, from_model_name, to_app_label, to_model_name, reverse=False):
+    def create_populate_migration(self, from_app_label, from_model_name,
+                                  to_app_label, to_model_name, reverse=False):
         populate_template = """
     populate_table(apps, schema_editor,
                    "{from_app}", "{from_model}",
@@ -141,5 +144,6 @@ def backwards(apps, schema_editor):{backwards}
         forwards_backwards = forwards_backwards_template.format(**data)
 
         self.create_runpython_migration(to_app_label, forwards_backwards,
-                                        [populate_table, empty_table, make_table_name, fetch_with_column_names,
-                                         get_max_id, reset_sequence])
+                                        [populate_table, empty_table, make_table_name,
+                                         fetch_with_column_names, get_max_id,
+                                         reset_sequence])

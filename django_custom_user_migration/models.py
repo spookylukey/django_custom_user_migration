@@ -1,10 +1,13 @@
 from django.contrib import auth
-from django.contrib.auth.models import AbstractBaseUser, UserManager, Group, Permission, _user_get_all_permissions, _user_has_module_perms, _user_has_perm
+from django.contrib.auth.models import (AbstractBaseUser, Group, Permission, UserManager,
+                                        _user_get_all_permissions, _user_has_module_perms,
+                                        _user_has_perm)
 from django.core import validators
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 
 # We need to provide User class that is identical to django.contrib.auth.models.AbstractUser, but
 # avoids the problems associated with related_name clashes, and attempting to
