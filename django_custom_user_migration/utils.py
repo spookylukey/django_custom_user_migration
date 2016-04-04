@@ -1,10 +1,13 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.db.migrations.loader import MigrationLoader
-from django.db import models
+# No module level imports, because some of these functions
+# get copied into migrations, and we can't guarantee
+# what module level imports there are in the migration
+# files.
 
 
 def find_related_apps(model):
+    from django.db import models
     related_models = [rel.related_model for rel in model._meta.get_fields(include_hidden=True)
                       if hasattr(rel, 'field') and isinstance(rel.field, models.ForeignKey)]
 
@@ -12,6 +15,7 @@ def find_related_apps(model):
 
 
 def get_last_migration(app_label):
+    from django.db.migrations.loader import MigrationLoader
     loader = MigrationLoader(None, ignore_no_migrations=True)
     graph = loader.graph
     leaf_nodes = graph.leaf_nodes()
@@ -103,6 +107,7 @@ def reset_sequence(apps, schema_editor, app, model):
 
 
 def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, to_model_name):
+    from django.db import models
     FromModel = apps.get_model(from_app, from_model_name)
     ToModel = apps.get_model(to_app, to_model_name)
 
