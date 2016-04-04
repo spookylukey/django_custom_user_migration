@@ -146,9 +146,13 @@ complications you could be done in 5 minutes.
     In the short term, this can be fixed as per this advice:
     http://stackoverflow.com/a/28560805/182604
 
-    Long term, after your migrations have been deployed, this can be fixed by
-    squashing the ``accounts`` migrations into a single migration that removes
-    all the additional migrations created from step 5 onwards above.
+    Long term, this can be fixed by squashing the ``accounts`` migrations up to
+    step 12 into a single migration. Use the ``squashmigrations`` command to do
+    this, then manually edit it to remove all but the initial ``CreateModel``
+    operation. So the migration created should be the same as accounts
+    ``0001_initial``, but it will have a ``replaces`` attribute that marks it as
+    squashing the others. You may also need to adjust (remove) some of its
+    dependencies.
 
 15. Uninstall ``django_custom_user_migration``, you don't need it any more. The
     migrations generated run without it being installed.
