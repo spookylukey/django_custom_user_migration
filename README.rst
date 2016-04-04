@@ -35,7 +35,8 @@ Usage
 -----
 
 There are a lot of steps below, but it is almost all copy/paste, and with no
-complications you could be done in 5 minutes.
+complications you could be done in 5 minutes. It assumed you will perform all
+these steps apart from the last in your development environment.
 
 1. Install ``django_custom_user_migration`` to your project::
 
@@ -154,9 +155,12 @@ complications you could be done in 5 minutes.
     squashing the others. You may also need to adjust (remove) some of its
     dependencies.
 
-15. Uninstall ``django_custom_user_migration``, you don't need it any more. The
-    migrations generated run without it being installed.
+15. Uninstall ``django_custom_user_migration``, and remove it from your
+    ``INSTALLED_APPS``, you don't need it any more. The migrations generated
+    run without it being installed.
 
+16. You can now deploy these migrations to your production environment and run
+    them in the normal way using ``./manage.py migrate``.
 
 You can now customise your ``User`` model as required in the normal way, using
 migrations etc. You could even make it inherit from ``AbstractBaseUser`` or some
@@ -168,7 +172,7 @@ application accordingly.
 Other notes
 -----------
 
-* Use at own risk, etc. etc.
+* Use at own risk, make sure you back up your data first, etc. etc.
 
 * Tested on sqlite and postgres
 
