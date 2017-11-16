@@ -22,7 +22,10 @@ provided by a 3rd party.
 Prerequisites
 -------------
 
-* Django 1.8 or later
+* Django 1.8 or later.
+
+  Django 1.10 and later currently do not work - see `issue 5 <https://bitbucket.org/spookylukey/django_custom_user_migration/issues/5/inconsistentmigrationhistory-when>`_.
+
 * Python 2.7 or Python 3.3+
 
 You must have ensured that everywhere in your project (including 3rd party
