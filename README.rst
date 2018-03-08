@@ -19,6 +19,11 @@ You are currently using Django's ``django.contrib.auth.models.User`` model in a
 deployed project, but want to migrate to a model that is under your own control, or
 provided by a 3rd party.
 
+Other solutions
+---------------
+
+See https://code.djangoproject.com/ticket/25313 which probably works better at this point in time.
+
 Prerequisites
 -------------
 
