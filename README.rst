@@ -22,7 +22,8 @@ provided by a 3rd party.
 Other solutions
 ---------------
 
-See https://code.djangoproject.com/ticket/25313 which probably works better at this point in time.
+See https://code.djangoproject.com/ticket/25313 which probably works better at this point in time,
+or https://www.caktusgroup.com/blog/2019/04/26/how-switch-custom-django-user-model-mid-project/ .
 
 Prerequisites
 -------------
