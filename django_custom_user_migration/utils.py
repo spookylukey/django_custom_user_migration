@@ -174,7 +174,7 @@ def change_foreign_keys(apps, schema_editor, from_app, from_model_name, to_app, 
         print("Fixing FK in {0}, col {1} -> {2}, from {3} -> {4}".format(
             show(fk_field.model),
             old_field.column, new_field.column,
-            show(old_field.rel.to), show(new_field.rel.to),
+            show(old_field.remote_field.model), show(new_field.remote_field.model),
         ))
         schema_editor.alter_field(fk_field.model, old_field, new_field, strict=True)
 
