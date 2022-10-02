@@ -106,6 +106,14 @@ these steps apart from the last in your development environment.
 
      ./manage.py create_custom_user_contenttypes_migration auth.User accounts.User
 
+8. To avoid running into::
+
+    django.db.migrations.exceptions.InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial on database 'default'.
+
+  (unless you want to preserve the LogEntry history(?)::
+
+    ./manage.py migrate admin zero
+
 8. Change the ``AbstractUser`` import in your models.py to::
 
       from django.contrib.auth.models import AbstractUser

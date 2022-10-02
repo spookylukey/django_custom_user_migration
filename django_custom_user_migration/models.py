@@ -1,6 +1,6 @@
 from django.contrib import auth
 from django.contrib.auth.models import (AbstractBaseUser, Group, Permission, UserManager,
-                                        _user_get_all_permissions, _user_has_module_perms,
+                                        _user_get_permissions, _user_has_module_perms,
                                         _user_has_perm)
 from django.core import validators
 from django.core.mail import send_mail
@@ -65,7 +65,7 @@ class PermissionsMixin(models.Model):
         return permissions
 
     def get_all_permissions(self, obj=None):
-        return _user_get_all_permissions(self, obj)
+        return _user_get_permissions(self, obj, "all")
 
     def has_perm(self, perm, obj=None):
         """

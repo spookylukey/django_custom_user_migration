@@ -57,7 +57,7 @@ class CustomUserCommand(BaseCommand):
                     migration.dependencies.extend(extra_dependencies)
                 writer = MigrationWriter(migration)
 
-                migration_string = writer.as_string().decode('utf-8')
+                migration_string = writer.as_string()  # .decode('utf-8')
 
                 # Add support functions:
                 migration_string = migration_string.replace("\nclass Migration",
